@@ -142,7 +142,7 @@ def make_desigion(log_dict, log_error):
                                     )
                         break
                 for word in bad_messages:
-                        if bad_m.lower() in client_wrote:
+                        if word.lower() in client_wrote:
                             log_dict['cause_to_delete: '] = word
                             log_dict['ban: '] = True
                             log_dict['message_to_ban: '] = 'Вы добавлены в бан причина: ' + '<' + word +'>'
