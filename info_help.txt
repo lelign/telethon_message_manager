@@ -8,7 +8,7 @@ bot username ign_921_alex_bot
 bot name ign_alex_bot
 https://web.telegram.org/a/#-1001761952037 < = ntv channel
 https://web.telegram.org/a/#-1003516778239 <= test channel
-TOKEN = '8022469006:some letters and numbers-xhVIY4Yo'
+TOKEN = '8022469006:AAENQHhdpjB84mUPpiguAH4rAD-xhVIY4Yo'
 # Channel(s) to monitor (can be username or ID)
 # Use a list for multiple channels
 my_channel_ids = ['@ign_alex_test_channel']
