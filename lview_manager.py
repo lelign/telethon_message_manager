@@ -21,13 +21,13 @@ from pathlib import Path
 #API_ID = 30603011     # from https://my.telegram.org/apps
 #API_HASH = 'b19dcf65395bedabc414b0c05084c42c' # from https://my.telegram.org/apps
 # client = TelegramClient('ign', API_ID, API_HASH)
-channel = "ign_alex_test_channel"
+#channel = "ign_alex_test_channel"
 #channel_name = 'test_ch_ign_alex'
 # API ID and API HASH
 #api_id = 30603011
-api_id = 35593352
+
 #api_hash = 'b19dcf65395bedabc414b0c05084c42c'
-api_hash = '27d3fd3d12a25884f4ef26c6db030a8a'
+#api_hash = '27d3fd3d12a25884f4ef26c6db030a8a'
 '''
 from https://my.telegram.org/apps
 app_title = 'ignalexbotapplication'
@@ -36,21 +36,20 @@ api_id = 35593352
 api_hash = '27d3fd3d12a25884f4ef26c6db030a8a'
 '''
 
-
-#channel_name = 'test_ch_ign_alex'
-
-entity_id = -1003516778239 # https://web.telegram.org/a/#-1003516778239 <= test channel
-#group_in_channel_id = -1003667572076 # https://web.telegram.org/a/#-1003667572076 <= test_ch_ign_alex
+#           
+#           27d3fd3d12a25884f4ef26c6db030a8a
+api_hash = '27d3fd3d12a25884f4ef26c6db030a8a'
+#       35593352
+api_id = 35593352
+session_name = 'lview'
 group_in_channel_id = -1003591196682 # lview_smartphone_channel Chat https://web.telegram.org/a/?account=2#-1003591196682 lview 
-# session_name = 'session_name'1003591196682_4
-session_name = 'phone'
-
-chan_admin = []
+#-1003591196682
 client = TelegramClient(session_name, api_id, api_hash)
 
 
 def create_log_dict():
     log_dict = {
+                '____________________________________________':''
                 'date_time_now: ': '',
                 'replayed: ': '', 
                 'original_message_time: ': '',
@@ -255,6 +254,7 @@ async def get_sender_name_by_id(user_id):
 
 @client.on(events.NewMessage())  # <= all chats
 async def my_event_handler(event):
+    #print(str(event))
     global source_files
     global work_dir
     global log_error

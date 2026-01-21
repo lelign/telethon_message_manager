@@ -8,3 +8,6 @@ try_it.py
 ban_list.txt
 phone.session
 'session_name'.session
+anon.session
+events.txt
+lview.session
