@@ -1,0 +1,2 @@
+Bot name = ign_alex_bot
+Bot link = ign_921_alex_bot
