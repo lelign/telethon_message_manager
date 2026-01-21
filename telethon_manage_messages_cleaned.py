@@ -51,7 +51,7 @@ api_hash = 'b19dcf65395bedabc414b0c05084c42c'
 entity_id = -1003516778239 # https://web.telegram.org/a/#-1003516778239 <= test channel
 group_in_channel_id = -1003667572076 # https://web.telegram.org/a/#-1003667572076 <= test_ch_ign_alex
 
-session_name = 'session_name'
+# session_name = 'session_name'
 session_name = 'phone'
 
 chan_admin = []

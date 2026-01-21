@@ -1,0 +1,37 @@
+'''
+from https://my.telegram.org/apps
+App api_id: 30603011
+App api_hash: b19dcf65395bedabc414b0c05084c42c
+App title: ign_alex_bot_application
+Short name: IgnAlexBotApp
+bot username ign_921_alex_bot
+bot name ign_alex_bot
+https://web.telegram.org/a/#-1001761952037 < = ntv channel
+https://web.telegram.org/a/#-1003516778239 <= test channel
+TOKEN = '8022469006:some letters and numbers-xhVIY4Yo'
+# Channel(s) to monitor (can be username or ID)
+# Use a list for multiple channels
+my_channel_ids = ['@ign_alex_test_channel']
+'''
+
+#if os.name == 'nt':
+#    _ = os.system('cls')
+# For macOS and Linux (posix systems)
+#else:
+#    _ = os.system('clear')
+ # assign log
+
+API_ID =  int   # from https://my.telegram.org/apps
+API_HASH = '' # from https://my.telegram.org/apps
+client = TelegramClient('ign', API_ID, API_HASH)
+channel = "str"
+channel_name = 'str'
+# API ID and API HASH
+api_id = int
+api_hash = 'str'
+
+entity_id = -int # https://web.telegram.org/a/#-1003516778239 <= test channel
+group_in_channel_id = -int # https://web.telegram.org/a/#-1003667572076 <= test_ch_ign_alex
+
+# session_name = 'session_name'
+session_name = 'phone'
