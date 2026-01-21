@@ -16,42 +16,33 @@ from telethon.tl.functions.channels import DeleteMessagesRequest
 from telethon import types
 from telethon import utils
 from telethon.tl.types import ChannelParticipantsAdmins
+from pathlib import Path
 
+#API_ID = 30603011     # from https://my.telegram.org/apps
+#API_HASH = 'b19dcf65395bedabc414b0c05084c42c' # from https://my.telegram.org/apps
+# client = TelegramClient('ign', API_ID, API_HASH)
+channel = "ign_alex_test_channel"
+#channel_name = 'test_ch_ign_alex'
+# API ID and API HASH
+#api_id = 30603011
+api_id = 35593352
+#api_hash = 'b19dcf65395bedabc414b0c05084c42c'
+api_hash = '27d3fd3d12a25884f4ef26c6db030a8a'
 '''
 from https://my.telegram.org/apps
-App api_id: 30603011
-App api_hash: b19dcf65395bedabc414b0c05084c42c
-App title: ign_alex_bot_application
-Short name: IgnAlexBotApp
-bot username ign_921_alex_bot
-bot name ign_alex_bot
-https://web.telegram.org/a/#-1001761952037 < = ntv channel
-https://web.telegram.org/a/#-1003516778239 <= test channel
-TOKEN = '8022469006:AAENQHhdpjB84mUPpiguAH4rAD-xhVIY4Yo'
-# Channel(s) to monitor (can be username or ID)
-# Use a list for multiple channels
-my_channel_ids = ['@ign_alex_test_channel']
+app_title = 'ignalexbotapplication'
+short_name = 'ignalexbota'
+api_id = 35593352
+api_hash = '27d3fd3d12a25884f4ef26c6db030a8a'
 '''
 
-#if os.name == 'nt':
-#    _ = os.system('cls')
-# For macOS and Linux (posix systems)
-#else:
-#    _ = os.system('clear')
- # assign log
-API_ID = 30603011     # from https://my.telegram.org/apps
-API_HASH = 'b19dcf65395bedabc414b0c05084c42c' # from https://my.telegram.org/apps
-client = TelegramClient('ign', API_ID, API_HASH)
-channel = "ign_alex_test_channel"
-channel_name = 'test_ch_ign_alex'
-# API ID and API HASH
-api_id = 30603011
-api_hash = 'b19dcf65395bedabc414b0c05084c42c'
+
+#channel_name = 'test_ch_ign_alex'
 
 entity_id = -1003516778239 # https://web.telegram.org/a/#-1003516778239 <= test channel
-group_in_channel_id = -1003667572076 # https://web.telegram.org/a/#-1003667572076 <= test_ch_ign_alex
-
-# session_name = 'session_name'
+#group_in_channel_id = -1003667572076 # https://web.telegram.org/a/#-1003667572076 <= test_ch_ign_alex
+group_in_channel_id = -1003591196682 # lview_smartphone_channel Chat https://web.telegram.org/a/?account=2#-1003591196682 lview 
+# session_name = 'session_name'1003591196682_4
 session_name = 'phone'
 
 chan_admin = []
@@ -82,7 +73,29 @@ def create_log_dict():
         log_dict[key] = False
     return log_dict 
 
-def fill_and_write_logs(log_dict, log_error):
+def write_to_ban_list(log_dict:dict, log_error: list):
+    global source_files
+    global socseti_manager
+    with  open( os.path.join(work_dir, 'ban_list.txt'), 'a') as f_ban:
+            f_ban.write(log_dict['original_message_sender_disp: '] + ' ' +
+                    log_dict['original_message_sender_ID: '] + ' ' +
+                    'добавлен в бан причина <' + log_dict['cause_to_delete: '] + '> '+
+                    log_dict['original_message_text: '] + '\n'
+                    )
+    cp_files = cp_source_files(source_files, log_error)
+    if cp_files:
+        with  open( os.path.join(socseti_manager, 'ban_list.txt'), 'a') as f_ban:
+            f_ban.write(log_dict['original_message_sender_disp: '] + ' ' +
+                    log_dict['original_message_sender_ID: '] + ' ' +
+                    'добавлен в бан причина <' + log_dict['cause_to_delete: '] + '> '+
+                    log_dict['original_message_text: '] + '\n'
+                    )
+
+
+def make_desigion(log_dict, log_error):
+    #global source_files
+    cp_files = cp_source_files(source_files, log_error)
+
     if True:
         ''' check if sender already in ban_list'''
         if check_files_exist(log_error):
@@ -128,16 +141,13 @@ def fill_and_write_logs(log_dict, log_error):
                                     'добавлен в бан причина <' + word + '> '+ log_dict['original_message_text: '] + '\n'
                                     )
                         break
-                for bad_m in bad_messages:
+                for word in bad_messages:
                         if bad_m.lower() in client_wrote:
-                            log_dict['cause_to_delete: '] = bad_m
+                            log_dict['cause_to_delete: '] = word
                             log_dict['ban: '] = True
-                            log_dict['message_to_ban: '] = 'Вы добавлены в бан причина: ' + '<' + bad_m +'>'
-                            with  open( os.path.join(work_dir, 'ban_list.txt'), 'a') as f_ban:
-                                f_ban.write(log_dict['original_message_sender_disp: '] + ' ' +
-                                        log_dict['original_message_sender_ID: '] + ' ' +
-                                        'добавлен в бан причина <' + bad_m + '> '+ log_dict['original_message_text: '] + '\n'
-                                        )
+                            log_dict['message_to_ban: '] = 'Вы добавлены в бан причина: ' + '<' + word +'>'
+                            write_to_ban_list(log_dict, log_error)
+                            
                             break
 
         log_dict['date_time_now: '] = '\t\t' + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -186,6 +196,28 @@ def check_files_exist(log_error):
 
     #oscene_words = set(line.strip() for line in open(os.path.join(work_dir, 'obscene.txt'), encoding="utf-8"))
     #return obscene_words
+
+def cp_source_files(source_files, log_error):
+    global socseti
+    global socseti_manager
+    result = True 
+    path_socseti = Path(socseti)
+    if path_socseti.is_dir():
+        path_message_manager = Path(socseti_manager)
+        if not path_message_manager.is_dir():
+            os.mkdir(str(path_message_manager))
+        for file in source_files:
+            try:
+                destinaation_file = os.path.join(str(path_message_manager), file)
+                if os.path.isfile(destinaation_file):
+                    shutil.copy(destinaation_file, file)
+                else:
+                    shutil.copy(file, destinaation_file)
+            except Exception as e:
+                log_error.append(f"\n\tError cp source files: {e}")
+                result = False
+                break
+    return result
 
 async def get_sender_name_by_id(user_id):
     global log_error
@@ -264,7 +296,7 @@ async def my_event_handler(event):
                 else:
                     log_error.append(f"\n\tError Could not fetch the original message (it might be too old or deleted")
                
-                log_dict, log_error = fill_and_write_logs(log_dict, log_error)
+                log_dict, log_error = make_desigion(log_dict, log_error)
 
                   
  
@@ -279,7 +311,7 @@ async def my_event_handler(event):
                     log_dict['original_message_sender_disp: '] = full_name
                 log_dict['original_message_text: '] = str(message.text).replace('\n', '').replace('\r', '').strip()
 
-                log_dict, log_error = fill_and_write_logs(log_dict, log_error)
+                log_dict, log_error = make_desigion(log_dict, log_error)
 
 
  
@@ -307,7 +339,21 @@ async def my_event_handler(event):
             except:
                 pass
     
-    
+
+    result = True 
+    path_socseti = Path("W:/ВИДЕО_ДЛЯ_ЭФИРА/СОЦСЕТИ")
+    if path_socseti.is_dir():
+        path_messege_manager = Path("W:/ВИДЕО_ДЛЯ_ЭФИРА/СОЦСЕТИ/MESSAGE_MANAGER")
+        if not path_messege_manager.is_dir():
+            os.mkdir(str(path_messege_manager))
+        for file in source_files:
+            try:
+                shutil.copy(file, os.path.join(str(path_messege_manager), file))
+            except Exception as e:
+                log_error.append(f"\n\tError cp source files: {e}")
+                result = False
+                break
+    return result    
 
 async def main():
     await client.start()
@@ -320,10 +366,15 @@ if __name__ == '__main__':
     global log_error
     log_error =[]
     global work_dir
-    work_dir = os.path.join(HOME + "\\Documents\\Message_menager")
+    #work_dir = os.path.join(HOME + "\\Documents\\Message_menager")
+    work_dir = os.getcwd()
     log_error.append(work_dir)
     global source_files
     source_files = ('bad_messages.txt' , 'obscene.txt', 'ban_list.txt')
+    global socseti
+    socseti = 'W:/ВИДЕО_ДЛЯ_ЭФИРА/СОЦСЕТИ'
+    global socseti_manager
+    socseti_manager = "W:/ВИДЕО_ДЛЯ_ЭФИРА/СОЦСЕТИ/MESSAGE_MANAGER"
     #log_dict.append('work_dir: ' + str(work_dir))
     # Ensure the script runs within an asyncio event loop
     asyncio.run(main())
@@ -340,116 +391,3 @@ if __name__ == '__main__':
 
 
 
-
-'''
-async def my_event_handler(event):
-    msg = event.text    
-
-    print(f"[M] {msg}\n\n")
-'''
-
-
-
-
-
-
-
-
-'''
-try:
-    entity = 'шабашка'
-    async for message in client.iter_messages(entity_id, search=entity):
-        print(f"Found message (ID: {message.id}): {message.text}")
-    sent_message = await client.send_message(entity, 'This message will be deleted shortly!')
-    print(f"Sent message with ID: {sent_message.id}")
-    await asyncio.sleep(3)
-    await client.delete_messages(entity=entity, message_ids=[sent_message.id])  
-except Exception as e:
-        print(f"Error on start deleting message: {e}")
-        
-
-  
-print(f"Deleted message with ID: {sent_message.id}")
-'''
-
-
-
-
-'''
-async def delete_specific_message():
-    async with TelegramClient(session_name, api_id, api_hash) as client:
-        # Delete a single message
-        await client.delete_messages(chat_entity, message_ids=[message_id_to_delete])
-        print(f"Message {message_id_to_delete} in entity {chat_entity} deleted (if permissions allowed).")
-'''        
-
-
-
-
-    
-'''
-async def main():
-    async for message in client.iter_messages(-1003516778239, limit=5):
-        print(message.id, message.text)
-
-
-with client:
-    client.loop.run_until_complete(main())
-'''
-
-
-'''
-try:
-    # print(f"New message in {event.chat.title}:\t\t {event.text}") # moved
-    
-    # print(event)
-    # words_list = event.text.split()
-    # print("words_list", words_list)
-    message_words = set(event.text.translate(str.maketrans('', '', string.punctuation)).split())
-    filtered_message = event.text
-    contains_ban_word = False
-    obscene = ""
-    bad_message = ""
-    for word in message_words:
-        if word.lower() in OBSCENE_WORDS: # or word.lower() in:
-            #filtered_message = filtered_message.replace(word, "*" * len(word))
-            obscene = word
-            print ("obscene \t\t\t", obscene)
-            contains_ban_word = True
-    bad_messages = set(line.strip() for line in open('bad_messages.txt', encoding="utf-8"))
-    for bad_m in bad_messages:
-        if bad_m.lower() in event.text.lower():
-            bad_message = bad_m
-            print ("bad_message \t\t\t", bad_message)
-            contains_ban_word = True
-    
-    
-    #print("filtered_message", filtered_message)
-    message_id = event.message.id
-   # Get the ID of the user who sent the message
-    user_id = event.sender_id
-    entity = await client.get_entity(user_id)
-    entity_username_user_id = entity.username
-    print(f"\nentity_username_user_id  \t\t{entity_username_user_id}")
-    # Alternatively, get the full user object
-    sender = await event.get_sender()
-    #print(f"sender  {sender}\n\n")
-    sender_id = sender.id
-    print(f"\nsender_id  \t\t{sender_id}")
-    entity = await client.get_entity(sender_id)
-    entity_username_sender_id = entity.username
-    print(f"\nentity_username_sender_id \t\t{entity_username_sender_id}")
-    # Or get the entity directly from the ID
-    # user_entity = await client.get_entity(user_id)
-    if contains_ban_word:
-        message_id_to_delete = message_id
-        print(f"Received message fom user_id \t{user_id} sender_id \t{sender_id} with ID: \t{message_id}")
-        try:
-            # The method takes a list of message IDs
-            await client.delete_messages(entity=entity_id, message_ids=[message_id_to_delete])
-            print(f"\nMessage {event.text} ID {message_id_to_delete} deleted from entity {entity_id}.")
-        except Exception as e:
-            print(f"Error deleting message: {e}")
-except Exception as e:
-            print(f"Global error: {e}")
-'''
