@@ -48,8 +48,7 @@ client = TelegramClient(session_name, api_id, api_hash)
 
 
 def create_log_dict():
-    log_dict = {
-                '____________________________________________':''
+    log_dict = {'____________________________________________':'',
                 'date_time_now: ': '',
                 'replayed: ': '', 
                 'original_message_time: ': '',
@@ -69,26 +68,29 @@ def create_log_dict():
                 'message_to_ban: ':''
                 }
     for key in log_dict.keys():
-        log_dict[key] = False
+        if '____________________________________________' in key:
+            log_dict[key] = '#'
+        else:
+            log_dict[key] = False
     return log_dict 
 
-def write_to_ban_list(log_dict:dict, log_error: list):
+def write_to_ban_list(log_dict, log_error):
+    global work_dir
     global source_files
     global socseti_manager
-    with  open( os.path.join(work_dir, 'ban_list.txt'), 'a') as f_ban:
-            f_ban.write(log_dict['original_message_sender_disp: '] + ' ' +
-                    log_dict['original_message_sender_ID: '] + ' ' +
-                    'добавлен в бан причина <' + log_dict['cause_to_delete: '] + '> '+
-                    log_dict['original_message_text: '] + '\n'
+    
+    to_write = (str(log_dict['original_message_sender_disp: ']) + ' ' +
+                    str(log_dict['original_message_sender_ID: ']) + ' ' +
+                    'добавлен в бан причина <' + str(log_dict['cause_to_delete: ']) + '> '+
+                    str(log_dict['original_message_text: ']) + '\n'
                     )
+    breakpoint()
+    with  open( os.path.join(work_dir, 'ban_list.txt'), 'a', encoding='utf-8') as f_ban_l:
+            f_ban_l.write(to_write)
     cp_files = cp_source_files(source_files, log_error)
-    if cp_files:
-        with  open( os.path.join(socseti_manager, 'ban_list.txt'), 'a') as f_ban:
-            f_ban.write(log_dict['original_message_sender_disp: '] + ' ' +
-                    log_dict['original_message_sender_ID: '] + ' ' +
-                    'добавлен в бан причина <' + log_dict['cause_to_delete: '] + '> '+
-                    log_dict['original_message_text: '] + '\n'
-                    )
+    if True:
+        with  open( os.path.join(socseti_manager, 'ban_list.txt'), 'a', encoding='utf-8') as f_ban:
+            f_ban.write(to_write)
 
 
 def make_desigion(log_dict, log_error):
@@ -98,29 +100,20 @@ def make_desigion(log_dict, log_error):
     if True:
         ''' check if sender already in ban_list'''
         if check_files_exist(log_error):
-            ban_ids = set(line.strip() for line in open( os.path.join(work_dir, 'ban_list.txt') ) )
-            for ban in ban_ids:
-                if log_dict['original_message_sender_ID: '] in ban:
-                    log_dict['ban: '] = True                                                        
-                    log_dict['message_to_ban: '] = 'Вы добавлены в бан, больше не пишите сюда.'
-                    log_dict['cause_to_delete: '] = 'already in ban'
-                    break
-            if not log_dict['ban: ']:
-                '''admin's ban''' 
-                #breakpoint()       
-                if (log_dict['replayed: ']  
-                    and log_dict['replayed_message_sender_ID: '] == 'None'  
-                    and log_dict['replayed_message_text: '] == 'В бан'
-                    ):
-                    #breakpoint()
-                    log_dict['ban: '] = True
-                    log_dict['message_to_ban: '] = 'Администратор канала отправил вас в бан'
-                    with  open( os.path.join(work_dir, 'ban_list.txt'), 'a') as f_ban:
-                        f_ban.write(log_dict['original_message_sender_disp: '] + ' ' +
-                                    log_dict['original_message_sender_ID: '] + ' ' +
-                                    'Администратор отправил в бан\n'
-                                    )
+            if not log_dict['ban: ']:             
+                ban_ids = set(line.strip() for line in open( os.path.join(work_dir, 'ban_list.txt') ) )
+                for ban in ban_ids:
+                    if log_dict['original_message_sender_ID: '] in ban:
+                        log_dict['ban: '] = True                                                        
+                        log_dict['message_to_ban: '] = 'Вы добавлены в бан, больше не пишите сюда.'
+                        log_dict['cause_to_delete: '] = 'уже в бане'
+                        break
 
+            '''admin's ban or already in ban'''
+            if log_dict['ban: ']:
+                write_to_ban_list(log_dict, log_error)
+            
+            else:
                 '''check words and ban'''            
                 obscene_words = set(line.strip() for line in open(os.path.join(work_dir, 'obscene.txt'), encoding="utf-8"))
                 bad_messages = set(line.strip() for line in open(os.path.join(work_dir, 'bad_messages.txt'), encoding="utf-8"))
@@ -145,9 +138,10 @@ def make_desigion(log_dict, log_error):
                             log_dict['cause_to_delete: '] = word
                             log_dict['ban: '] = True
                             log_dict['message_to_ban: '] = 'Вы добавлены в бан причина: ' + '<' + word +'>'
-                            write_to_ban_list(log_dict, log_error)
-                            
                             break
+                '''obscene or bad words'''
+                if log_dict['ban: ']:
+                    write_to_ban_list(log_dict, log_error)
 
         log_dict['date_time_now: '] = '\t\t' + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for key in log_dict.keys():
@@ -288,18 +282,23 @@ async def my_event_handler(event):
                     log_dict['replayed_message_time: '] = message.date
                     log_dict['replayed_message_ID: '] = str(message.id)
                     log_dict['replayed_message_sender_ID: '] = str(message.sender_id)
+                    log_dict['replayed_message_text: '] = str(message.text).replace('\n', '').replace('\r', '').strip()
                     if message.sender_id:
                         display_name_repl, full_name_repl = await get_sender_name_by_id(message.sender_id)
                         log_dict['replayed_message_sender_full: '] = display_name_repl
                         log_dict['replayed_message_sender_disp: '] = full_name_repl
-                    log_dict['replayed_message_text: '] = str(message.text).replace('\n', '').replace('\r', '').strip()
+                    else:
+                        if log_dict['replayed_message_text: '] == 'В бан':
+                            log_dict['replayed_message_sender_full: '] = '\t\tADMIN_F'
+                            log_dict['replayed_message_sender_disp: '] = '\t\tADMIN_D'
+                            log_dict['ban: '] = True
+                            log_dict['message_to_ban: '] = 'Администратор канала отправил вас в бан'
+                            log_dict['cause_to_delete: '] = ' рашение адимнистратора' 
+                            log_dict['replayed_message_sender_ID: '] = '\t\tADMIN_ID'            
                 else:
                     log_error.append(f"\n\tError Could not fetch the original message (it might be too old or deleted")
                
-                log_dict, log_error = make_desigion(log_dict, log_error)
-
-                  
- 
+                 
             else:
                 log_dict['replayed: '] = False
                 log_dict['original_message_time: '] = message.date
@@ -311,7 +310,7 @@ async def my_event_handler(event):
                     log_dict['original_message_sender_disp: '] = full_name
                 log_dict['original_message_text: '] = str(message.text).replace('\n', '').replace('\r', '').strip()
 
-                log_dict, log_error = make_desigion(log_dict, log_error)
+            log_dict, log_error = make_desigion(log_dict, log_error)
 
 
  

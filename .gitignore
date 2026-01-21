@@ -11,3 +11,5 @@ phone.session
 anon.session
 events.txt
 lview.session
+error.log
+errors.log
