@@ -135,12 +135,20 @@ def make_desigion(log_dict, log_error):
             
             if not log_dict['ban: ']: #  log_dict['ban: '] = True line 120
                 #breakpoint()
+                client_wrote = []
                 try:
                     client_wrote = re.sub(r'[^a-zA-Zа-яА-Я]', ' ', log_dict['original_message_text: '] ).lower().split(' ')
                 except:
                     client_wrote = log_dict['original_message_text: ']
+                try:
+                    client_words_repl = re.sub(r'[^a-zA-Zа-яА-Я]', ' ', log_dict['replayed_message_text: '] ).lower().split(' ')
+                except:
+                    client_words_repl = log_dict['replayed_message_text: ']
+                client_wrote.extend(client_words_repl)
+  
+                
+                
                 '''set obscene'''
-                #breakpoint() 
                 try:                    
                     obscene_words = set(line.strip() for line in open( 
                                                                         os.path.join(socseti_manager, 'obscene.txt'), 
