@@ -96,7 +96,7 @@ def write_to_ban_list(log_dict, log_error): # not used
             f_ban.write(to_write)
 
 
-def make_desigion(log_dict, log_error):
+def make_desigion(log_dict, log_error, event):
     #global source_files
     cp_files = cp_source_files(source_files, log_error)
     global work_dir
@@ -111,14 +111,21 @@ def make_desigion(log_dict, log_error):
                 #ban_ids = set()
                 #file_soc = os.path.join(socseti_manager, 'ban_list.txt')
                 try:
-                    ban_ids = set(line.strip() for line in open( os.path.join(socseti_manager, 'ban_list.txt'), encoding='utf-8' ) )
+                    ban_ids = set(line.strip() for line in open(
+                                                                os.path.join(
+                                                                            socseti_manager, 
+                                                                            'ban_list.txt'
+                                                                            ), 
+                                                                            encoding='utf-8'
+                                                                )
+                                )       
                     log_dict['ban_list: '] = True   
                 except:
                     ban_ids = set(line.strip() for line in open( 'ban_list.txt', encoding='utf-8' ) )
                     log_dict['ban_list: '] = False
                 '''check if client in ban already'''
                 #breakpoint()
-                for ban_id in ban_ids:
+                for ban_id in ban_ids:                    
                     if str(log_dict['original_message_sender_ID: ']) in ban_id:
                         log_dict['ban: '] = True                                                        
                         log_dict['message_to_ban: '] = 'Вы добавлены в бан, больше не пишите сюда.'
@@ -133,18 +140,20 @@ def make_desigion(log_dict, log_error):
             #prev = log_dict['ban: ']
             #prev_type = type(prev)
             
-            if not log_dict['ban: ']: #  log_dict['ban: '] = True line 120
+            if not log_dict['ban: ']: #  log_dict['ban: '] = True line 115
                 #breakpoint()
                 client_wrote = []
                 try:
                     client_wrote = re.sub(r'[^a-zA-Zа-яА-Я]', ' ', log_dict['original_message_text: '] ).lower().split(' ')
                 except:
-                    client_wrote = log_dict['original_message_text: ']
+                    client_wrote.append(str(log_dict['original_message_text: ']))
+                client_words_repl = []   
                 try:
                     client_words_repl = re.sub(r'[^a-zA-Zа-яА-Я]', ' ', log_dict['replayed_message_text: '] ).lower().split(' ')
                 except:
-                    client_words_repl = log_dict['replayed_message_text: ']
+                    client_words_repl.append(str(log_dict['replayed_message_text: ']))
                 client_wrote.extend(client_words_repl)
+                #breakpoint()
   
                 
                 
@@ -212,7 +221,9 @@ def make_desigion(log_dict, log_error):
                         f_ban.write(to_write)
                     log_dict['ban_list: '] = True
                 except:
-                    log_dict['ban_list: '] = False 
+                    log_dict['ban_list: '] = False
+                
+                 
 
 
         log_dict['date_time_now: '] = event_time
@@ -233,6 +244,28 @@ def make_desigion(log_dict, log_error):
         except Exception as e:
                 log_error.append(f"\n\tError could'nt write, replayed is {log_dict['replayed: ']} {e}")
         return log_dict, log_error
+
+'''
+async def send_message(mes_id, mes_text):
+    try:
+        client.send_message(mes_id, mes_text)
+    except Exception as e:
+        print(f'send_message : {e}')
+
+
+async def delete_message(mes_id, chat_entity):
+    entity = await client.get_entity(chat_entity)
+    entity = await client.send_message(entity, 'This message will be deleted.')
+    await client.delete_messages(entity, mes_id)
+
+
+'''
+
+
+
+
+
+    
 
 def check_files_exist(log_error):
     #source_files = ('bad_messages.txt' , 'obscene.txt', 'ban_list.txt')
@@ -382,7 +415,26 @@ async def my_event_handler(event):
                     log_dict['original_message_sender_disp: '] = full_name
                 log_dict['original_message_text: '] = str(message.text).replace('\n', '').replace('\r', '').strip()
 
-            log_dict, log_error = make_desigion(log_dict, log_error)
+            log_dict, log_error = make_desigion(log_dict, log_error, event)
+            '''here may be log_dict returned witn ban'''
+            #print(f"Message ID: {message.id}, Text: {message.text} \
+            #      original_message_sender_ID {message.sender_id}")
+            
+            if log_dict['ban: ']:
+                
+                '''personal answer to sender'''
+                await client.send_message(message.sender_id, log_dict['message_to_ban: '])
+                '''replay message'''
+                await client.send_message(
+                                            entity=group_in_channel_id,
+                                            message='Сообщение удалено',
+                                            reply_to=message.id
+                                            )
+                '''delete message'''               
+                await client.delete_messages(
+                                                entity=group_in_channel_id, 
+                                                message_ids=[message.id]
+                                            ) 
 
 
  
