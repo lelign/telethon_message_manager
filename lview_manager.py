@@ -444,7 +444,8 @@ async def my_event_handler(event):
         source_files_bm_o = ('bad_messages.txt', 'obscene.txt')
         for file in source_files_bm_o:
             try:
-                shutil.copy(file, os.path.join(str(path_messege_manager), file))
+                if not os.path.isfile(os.path.join(str(path_messege_manager), file)):
+                    shutil.copy(file, os.path.join(str(path_messege_manager), file))
             except Exception as e:
                 log_error.append(f"\n\tError cp source files: {e}")
                 result = False
