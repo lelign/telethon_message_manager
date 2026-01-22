@@ -77,24 +77,6 @@ def create_log_dict():
             log_dict[key] = False
     return log_dict 
 
-def write_to_ban_list(log_dict, log_error): # not used
-    global work_dir
-    global source_files
-    global socseti_manager
-    
-    to_write = (str(log_dict['original_message_sender_disp: ']) + ' ' +
-                    str(log_dict['original_message_sender_ID: ']) + ' ' +
-                    'добавлен в бан причина <' + str(log_dict['cause_to_delete: ']) + '> '+
-                    str(log_dict['original_message_text: ']) + '\n'
-                    )
-    #breakpoint()
-    with  open( os.path.join(work_dir, 'ban_list.txt'), 'a', encoding='utf-8') as f_ban_l:
-            f_ban_l.write(to_write)
-    cp_files = cp_source_files(source_files, log_error)
-    if True:
-        with  open( os.path.join(socseti_manager, 'ban_list.txt'), 'a', encoding='utf-8') as f_ban:
-            f_ban.write(to_write)
-
 
 def make_desigion(log_dict, log_error, event):
     #global source_files
@@ -125,17 +107,18 @@ def make_desigion(log_dict, log_error, event):
                     log_dict['ban_list: '] = False
                 '''check if client in ban already'''
                 #breakpoint()
-                for ban_id in ban_ids:                    
-                    if str(log_dict['original_message_sender_ID: ']) in ban_id:
-                        log_dict['ban: '] = True                                                        
-                        log_dict['message_to_ban: '] = 'Вы добавлены в бан, больше не пишите сюда.'
-                        log_dict['cause_to_delete: '] = 'уже в бане'
-                        break
-                    if str(log_dict['replayed_message_sender_ID: ']) in ban_id:
-                        log_dict['ban: '] = True                                                        
-                        log_dict['message_to_ban: '] = 'Вы добавлены в бан, больше не пишите сюда.'
-                        log_dict['cause_to_delete: '] = 'уже в бане'
-                        break
+                if len(ban_ids) > 0:
+                    for ban_id in ban_ids:                    
+                        if str(log_dict['original_message_sender_ID: ']) in ban_id:
+                            log_dict['ban: '] = True                                                        
+                            log_dict['message_to_ban: '] = 'Вы добавлены в бан, больше не пишите сюда.'
+                            log_dict['cause_to_delete: '] = 'уже в бане'
+                            break
+                        if str(log_dict['replayed_message_sender_ID: ']) in ban_id:
+                            log_dict['ban: '] = True                                                        
+                            log_dict['message_to_ban: '] = 'Вы добавлены в бан, больше не пишите сюда.'
+                            log_dict['cause_to_delete: '] = 'уже в бане'
+                            break
                
             #prev = log_dict['ban: ']
             #prev_type = type(prev)
@@ -248,27 +231,7 @@ def make_desigion(log_dict, log_error, event):
                 log_error.append(f"\n\tError could'nt write, replayed is {log_dict['replayed: ']} {e}")
         return log_dict, log_error
 
-'''
-async def send_message(mes_id, mes_text):
-    try:
-        client.send_message(mes_id, mes_text)
-    except Exception as e:
-        print(f'send_message : {e}')
-
-
-async def delete_message(mes_id, chat_entity):
-    entity = await client.get_entity(chat_entity)
-    entity = await client.send_message(entity, 'This message will be deleted.')
-    await client.delete_messages(entity, mes_id)
-
-
-'''
-
-
-
-
-
-    
+   
 
 def check_files_exist(log_error):
     #source_files = ('bad_messages.txt' , 'obscene.txt', 'ban_list.txt')
@@ -310,10 +273,21 @@ def cp_source_files(source_files, log_error):
         for file in source_files:
             try:
                 destinaation_file = os.path.join(str(path_message_manager), file)
+
+                if not os.path.isfile(destinaation_file):
+                    shutil.copy(file, destinaation_file)
+
+
+
+
+                '''
                 if os.path.isfile(destinaation_file):
                     shutil.copy(destinaation_file, file)
                 else:
                     shutil.copy(file, destinaation_file)
+                
+                '''
+                
             except Exception as e:
                 log_error.append(f"\n\tError cp source files: {e}")
                 result = False
@@ -426,7 +400,8 @@ async def my_event_handler(event):
             if log_dict['ban: ']:
                 
                 '''personal answer to sender'''
-                await client.send_message(message.sender_id, log_dict['message_to_ban: '])
+                if message.sender_id:
+                    await client.send_message(message.sender_id, log_dict['message_to_ban: '])
                 '''replay message'''
                 await client.send_message(
                                             entity=group_in_channel_id,
