@@ -205,10 +205,13 @@ def make_desigion(log_dict, log_error, event):
             '''write to ban list'''            
             if log_dict['ban: ']:
                 #write_to_ban_list(log_dict, log_error)
-                if log_dict['replayed_message_sender_ID: '] > \
-                            log_dict['original_message_sender_ID: ']:
-                            log_dict['original_message_sender_ID: '] = str(log_dict['replayed_message_sender_ID: ']) + ' re'
-                            log_dict['original_message_sender_disp: '] = log_dict['replayed_message_sender_disp: ']
+                try:
+                    if log_dict['replayed_message_sender_ID: '] > \
+                                log_dict['original_message_sender_ID: ']:
+                                log_dict['original_message_sender_ID: '] = str(log_dict['replayed_message_sender_ID: ']) + ' re'
+                                log_dict['original_message_sender_disp: '] = log_dict['replayed_message_sender_disp: ']
+                except:
+                    pass
                 to_write = str(event_time) + '\n' + str(log_dict['original_message_sender_disp: ']) + ' ' + \
                                 str(log_dict['original_message_sender_ID: ']) + ' ' + \
                                 'добавлен в бан причина <' + str(log_dict['cause_to_delete: ']) + '> '+ \
