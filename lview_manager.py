@@ -46,7 +46,6 @@ group_in_channel_id = -1003591196682 # lview_smartphone_channel Chat https://web
 #-1003591196682
 client = TelegramClient(session_name, api_id, api_hash)
 
-
 def create_log_dict():
     log_dict = {'____________________________________________':'',
                 'date_time_now: ': '',
@@ -76,7 +75,6 @@ def create_log_dict():
         else:
             log_dict[key] = False
     return log_dict 
-
 
 def make_desigion(log_dict, log_error, event):
     #global source_files
@@ -230,15 +228,14 @@ def make_desigion(log_dict, log_error, event):
         except Exception as e:
                 log_error.append(f"\n\tError could'nt write, replayed is {log_dict['replayed: ']} {e}")
         return log_dict, log_error
-
-   
-
+ 
 def check_files_exist(log_error):
     #source_files = ('bad_messages.txt' , 'obscene.txt', 'ban_list.txt')
     files_exist = True
     global work_dir
     #global log_dict
-    for file in source_files:    
+    source_files_bm_o = ('bad_messages.txt', 'obscene.txt')
+    for file in source_files_bm_o:    
         destination_file = os.path.join(work_dir, file)
         try:
             if not os.path.exists(destination_file):
@@ -266,26 +263,23 @@ def cp_source_files(source_files, log_error):
     global socseti_manager
     result = True 
     path_socseti = Path(socseti)
+    source_files_bm_o = ('bad_messages.txt', 'obscene.txt')
     if path_socseti.is_dir():
         path_message_manager = Path(socseti_manager)
         if not path_message_manager.is_dir():
             os.mkdir(str(path_message_manager))
-        for file in source_files:
+        for file in source_files_bm_o:
             try:
                 destinaation_file = os.path.join(str(path_message_manager), file)
 
                 if not os.path.isfile(destinaation_file):
                     shutil.copy(file, destinaation_file)
 
-
-
-
                 '''
                 if os.path.isfile(destinaation_file):
                     shutil.copy(destinaation_file, file)
                 else:
-                    shutil.copy(file, destinaation_file)
-                
+                    shutil.copy(file, destinaation_file)                
                 '''
                 
             except Exception as e:
@@ -447,7 +441,8 @@ async def my_event_handler(event):
         path_messege_manager = Path("W:/ВИДЕО_ДЛЯ_ЭФИРА/СОЦСЕТИ/MESSAGE_MANAGER")
         if not path_messege_manager.is_dir():
             os.mkdir(str(path_messege_manager))
-        for file in source_files:
+        source_files_bm_o = ('bad_messages.txt', 'obscene.txt')
+        for file in source_files_bm_o:
             try:
                 shutil.copy(file, os.path.join(str(path_messege_manager), file))
             except Exception as e:
